@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="description" content="Integrador, você está a um passo de fechar mais projetos!"/>
+<title>Diagnóstico 1Nort · Integrador Solar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet"/>
+<link rel="preload" as="image" href="hero-welcome.webp" type="image/webp"/>
+
+<!-- ===================== META PIXEL (base) ===================== -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+</script>
+
+<style>
+:root{
+  --yellow:#FDD835; --yellow-d:#E6C200;
+  --bg:#0A0805; --line:rgba(255,255,255,.10);
+  --txt:#fff; --txt-dim:rgba(255,255,255,.6); --txt-faint:rgba(255,255,255,.4);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);overflow-x:hidden}
+.w-title,.q-title,.success-t,.analy-t,.modal h3{font-family:'Sora','Plus Jakarta Sans',sans-serif}
+
+.topbar{position:fixed;top:0;left:0;right:0;height:4px;background:rgba(255,255,255,.08);z-index:50}
+.topbar-fill{height:100%;width:0;background:linear-gradient(90deg,var(--yellow-d),var(--yellow));transition:width .45s cubic-bezier(.4,0,.2,1)}
+.brand{position:fixed;top:18px;left:0;right:0;text-align:center;z-index:40;pointer-events:none}
+.logo{height:34px;width:auto;display:inline-block}
+
+.stage{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:80px 22px 32px;position:relative}
+.stage::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 90% 50% at 50% 30%,rgba(253,216,53,.07),transparent 70%);pointer-events:none}
+.wrap{width:100%;max-width:600px;position:relative}
+
+.screen{display:none;animation:in .34s ease}
+.screen.active{display:block}
+@keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+.w-hero{width:100%;height:clamp(170px,29vh,260px);object-fit:cover;object-position:center 22%;border-radius:16px;display:block;margin-bottom:16px;border:1px solid var(--line)}
+.greet{font-size:15px;font-weight:700;color:var(--yellow);margin-bottom:8px;letter-spacing:.01em}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--yellow);margin-bottom:20px}
+.eyebrow::before{content:'';width:24px;height:2px;background:var(--yellow);border-radius:2px}
+.w-title{font-size:clamp(27px,5vw,40px);font-weight:800;line-height:1.12;letter-spacing:-.02em;margin-bottom:14px}
+.w-title em{color:var(--yellow);font-style:normal}
+.w-sub{font-size:clamp(15px,1.9vw,17px);color:var(--txt-dim);line-height:1.55;margin-bottom:12px}
+.w-sub b{color:#fff;font-weight:700}
+.w-note{font-size:14px;color:var(--txt-faint);line-height:1.5;margin-bottom:0}
+
+.proof{display:flex;align-items:center;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--txt-dim);font-weight:700;flex-wrap:wrap}
+.proof .stars{color:var(--yellow);letter-spacing:1px}
+.proof b{color:#fff}
+
+.q-step{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--yellow);margin-bottom:12px}
+.q-title{font-size:clamp(23px,4.6vw,32px);font-weight:800;line-height:1.22;letter-spacing:-.01em;margin-bottom:6px}
+.q-sub{font-size:15px;color:var(--txt-dim);margin-bottom:24px}
+
+.field{margin-bottom:14px}
+.label{display:block;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--txt-faint);margin-bottom:7px}
+.input{width:100%;background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.14);border-radius:14px;padding:16px 18px;font-size:17px;color:#fff;outline:none;transition:border-color .18s,background .18s;font-family:inherit}
+.input::placeholder{color:rgba(255,255,255,.28)}
+.input:focus{border-color:var(--yellow);background:rgba(253,216,53,.05)}
+.input.err{border-color:#ef4444}
+.err-msg{display:none;color:#ff6b6b;font-size:12.5px;font-weight:700;margin-top:6px}
+.field.show-err .err-msg{display:block;animation:in .2s ease}
+
+.trust{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--txt-faint);margin-top:2px}
+.trust svg{flex-shrink:0}
+
+.opts{display:flex;flex-direction:column;gap:11px}
+.opt{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.14);border-radius:14px;padding:18px 18px;font-size:16px;font-weight:700;color:#fff;cursor:pointer;transition:all .16s;font-family:inherit}
+.opt:hover{border-color:rgba(253,216,53,.6);background:rgba(253,216,53,.07)}
+.opt.sel{border-color:var(--yellow);background:rgba(253,216,53,.14)}
+.opt-ic{font-size:22px;flex-shrink:0;width:26px;text-align:center}
+.opt-dot{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.28);flex-shrink:0;transition:all .16s;margin-left:auto}
+.opt.sel .opt-dot{border-color:var(--yellow);background:var(--yellow);box-shadow:inset 0 0 0 5px var(--bg)}
+
+.btn{width:100%;padding:17px;border-radius:14px;font-size:17px;font-weight:800;cursor:pointer;border:none;font-family:inherit;margin-top:18px;transition:filter .18s,transform .18s;background:linear-gradient(135deg,var(--yellow-d),var(--yellow));color:#0a0805}
+.btn:hover{filter:brightness(1.07);transform:translateY(-1px)}
+.back{background:none;border:none;font-size:13px;color:var(--txt-faint);cursor:pointer;padding:16px 0 0;font-family:inherit;display:block;width:100%;text-align:center}
+.back:hover{color:#fff}
+
+/* analisando seu perfil */
+.spinner{width:64px;height:64px;border:4px solid rgba(253,216,53,.18);border-top-color:var(--yellow);border-radius:50%;margin:0 auto 26px;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.analy-t{font-size:clamp(22px,5vw,28px);font-weight:800;text-align:center;margin-bottom:10px}
+.analy-s{color:var(--txt-dim);text-align:center;font-size:15px;min-height:22px;transition:opacity .25s}
+
+.success-ic{width:74px;height:74px;border-radius:50%;background:rgba(253,216,53,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 22px;font-size:38px;color:var(--yellow)}
+.success-t{font-size:clamp(24px,5vw,32px);font-weight:800;margin-bottom:12px;text-align:center}
+.success-s{font-size:16px;color:var(--txt-dim);line-height:1.65;text-align:center;max-width:420px;margin:0 auto 22px}
+.wpp-btn{display:flex;align-items:center;justify-content:center;gap:10px;max-width:360px;margin:0 auto;padding:16px;border-radius:14px;background:#25D366;color:#072b14;font-weight:800;font-size:16px;text-decoration:none;transition:filter .18s,transform .18s}
+.wpp-btn:hover{filter:brightness(1.05);transform:translateY(-1px)}
+.wpp-alt{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;margin-top:10px;padding:14px;border-radius:14px;border:2px solid #25D366;background:transparent;color:#25D366;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit;transition:background .18s}
+.wpp-alt:hover{background:rgba(37,211,102,.12)}
+
+/* modal de retenção */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(4px);z-index:100;display:none;align-items:center;justify-content:center;padding:22px}
+.modal-bg.show{display:flex}
+.modal{background:#15110a;border:1px solid var(--line);border-radius:20px;padding:32px 26px;max-width:420px;width:100%;text-align:center;animation:in .3s ease}
+.modal .mic{font-size:40px;margin-bottom:14px}
+.modal h3{font-size:22px;font-weight:800;margin-bottom:10px}
+.modal p{color:var(--txt-dim);font-size:15px;line-height:1.6;margin-bottom:22px}
+.modal .btn{margin-top:0}
+
+@media(max-width:560px){
+  .brand{top:15px} .logo{height:28px} .stage{padding:70px 18px 26px}
+  .w-hero{height:clamp(150px,24vh,210px);margin-bottom:14px}
+  .w-title{margin-bottom:12px} .w-sub{margin-bottom:10px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="topbar-fill" id="progFill"></div></div>
+<div class="brand"><img class="logo" src="logo-1nort.png" alt="1Nort"/></div>
+
+<main class="stage"><div class="wrap" id="stepHost"></div></main>
+
+<!-- modal de retenção (#4) -->
+<div class="modal-bg" id="retModal">
+  <div class="modal">
+    <div class="mic">👀</div>
+    <h3 id="retTitle"></h3>
+    <p id="retText"></p>
+    <button class="btn" id="retStay"></button>
+    <button class="back" id="retLeave"></button>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   CONFIG — tudo que muda por cliente fica aqui
+   ========================================================================= */
+const CONFIG = {
+  pixelId:    "COLOQUE_O_PIXEL_ID_DO_CLIENTE",
+  webhookUrl: "COLOQUE_O_WEBHOOK_PADRAO_1NORT",
+  pagina:     "lp-quiz-integrador-solar",
+
+  // EVENTOS (#8 — níveis separados pra criar públicos/campanhas distintas)
+  eventoConversao: "RespondiConversion",  // lead qualificado "bom"
+  eventoTopTier:   "LeadTopTier",          // lead qualificado TOP (score alto)
+  eventoContato:   "Contato",
+  pedirEmail:      true,
+
+  // VALOR no evento (#7 — sinal secundário pra otimização por valor)
+  valorBom: 25,
+  valorTop: 100,
+  currency: "BRL",
+
+  // SCORE (#6 — pontua perfil; topThreshold define quem é TOP entre os qualificados)
+  topThreshold: 6,
+
+  // WHATSAPP (#2) — lead qualificado cai direto na conversa com mensagem pronta.
+  // >>> TROCAR pelo número real da 1Nort (formato internacional, só dígitos) <<<
+  whatsapp: {
+    number: "5521981007951",  // 1Nort · +55 21 98100-7951
+    msg: "Oi! Sou {nome}, acabei de fazer o diagnóstico de integrador solar e quero falar com a 1Nort.",
+    msgDesafio: " Meu maior desafio hoje é {desafio}.",  // só entra se a pessoa respondeu o desafio
+    autoRedirect: true,        // lead qualificado é redirecionado sozinho pro WhatsApp
+    redirectDelayMs: 1800      // tempo mostrando a tela de sucesso antes de redirecionar
+  },
+
+  // TELA "ANALISANDO SEU PERFIL" (#5)
+  analisando: {
+    enabled: true,
+    ms: 2400,
+    msgs: ["Analisando suas respostas…","Cruzando com +300 integradores…","Montando seu perfil…","Quase pronto…"]
+  },
+
+  // MODAL DE RETENÇÃO NO BACK (#4) — intercepta o "voltar" do navegador
+  retencao: {
+    enabled: true,
+    title: "Espera! Falta só um passo 👀",
+    text: "Você está a segundos de receber sua análise gratuita. Quer continuar de onde parou?",
+    stay: "Continuar diagnóstico",
+    leave: "Sair mesmo assim"
+  },
+  // se a pessoa insistir em sair: manda pra esta URL (ex: WhatsApp/oferta). Vazio = deixa sair.
+  backRedirect: { url:"" },
+
+  welcome: {
+    eyebrow:"Método 1Nort",
+    image:"hero-welcome.jpg",
+    imageWebp:"hero-welcome.webp",
+    title:"Integrador, você está a um passo de <em>fechar mais projetos</em>",
+    sub:"Receba o Método da 1Nort que já ajudou <b>+ de 300 integradores</b> a faturarem até <b>R$1M/mês</b> com Geração de Demanda, IA de Atendimento e Processo Comercial Alinhado.",
+    note:"Preencha o formulário de 1 minuto e receba uma análise gratuita dos nossos especialistas.",
+    proof:"<b>+500 integradores</b> já preencheram",
+    cta:"Começar →"
+  },
+
+  steps: [
+    /* Tela 1 — contato essencial */
+    { id:"contato", type:"contact", fireContato:true, savePartial:true, title:"Vamos começar 👋", sub:"Pra onde enviamos sua análise gratuita?",
+      fields:[
+        { key:"nome",     label:"Seu nome", type:"text", placeholder:"João Silva",          autocomplete:"name" },
+        { key:"telefone", label:"WhatsApp", type:"tel",  placeholder:"(11) 99999-9999",     autocomplete:"tel"  }
+      ], trust:true, next:"dados" },
+    /* Tela 2 — e-mail + cidade (entram no Advanced Matching) */
+    { id:"dados", type:"contact", title:"Quase lá, {nome}!", sub:"Só mais dois dados pra personalizar sua análise.",
+      fields:[
+        { key:"email",  label:"E-mail",          type:"email", placeholder:"voce@empresa.com", autocomplete:"email", onlyIfEmail:true },
+        { key:"cidade", label:"Cidade / Estado", type:"text",  placeholder:"São Paulo · SP",   autocomplete:"address-level2" }
+      ], next:"papel" },
+
+    { id:"papel", type:"single", title:"Show, {nome}! Qual o seu papel na empresa de energia solar?",
+      options:[
+        { ic:"👑", t:"Sou Dono / Sócio",                q:true,  s:3, next:"projetos" },
+        { ic:"📊", t:"Sou Gestor(a) Comercial",         q:true,  s:3, next:"projetos" },
+        { ic:"🤝", t:"Sou Vendedor / Representante",    q:false, s:0, next:"foco_vendedor" },
+        { ic:"🌱", t:"Ainda não atuo no mercado solar", q:false, s:0, next:"nao_atuo" }
+      ] },
+    /* RAMO A */
+    { id:"projetos", type:"single", title:"Quantos projetos vocês entregaram nos últimos 3 meses?",
+      options:[ {ic:"🔧",t:"Menos de 4",s:1,next:"desafio"},{ic:"⚡",t:"Entre 4 e 12",s:2,next:"desafio"},{ic:"📈",t:"Entre 12 e 24",s:3,next:"desafio"},{ic:"🚀",t:"Mais de 24",s:4,next:"desafio"} ] },
+    { id:"desafio", type:"single", title:"Qual o seu maior desafio hoje, {nome}?",
+      options:[ {ic:"🧲",t:"Gerar mais leads / clientes",s:2,next:"trafego"},{ic:"💰",t:"Fechar mais vendas",s:2,next:"trafego"},{ic:"📞",t:"Dar conta do atendimento",s:1,next:"trafego"},{ic:"📈",t:"Escalar / estruturar o time",s:2,next:"trafego"} ] },
+    /* RAMO B */
+    { id:"foco_vendedor", type:"single", title:"Como profissional de vendas, qual é o seu maior foco hoje?",
+      options:[
+        {ic:"🎓",t:"Quero um curso/treinamento para fechar mais vendas",      q:false, s:0, next:"trafego"},
+        {ic:"🧲",t:"Quero aprender a gerar meus próprios Leads na internet",   q:false, s:1, next:"trafego"},
+        {ic:"📣",t:"Quero levar a 1NORT para o Dono da Empresa onde trabalho", q:false, s:2, next:"trafego"},
+        {ic:"🏗️",t:"Estou me preparando para abrir minha própria Integradora", q:false, s:1, next:"trafego"},
+        {ic:"🤝",t:"Quero contratar a assessoria de vocês como Vendedor",      q:false, s:2, next:"trafego"}
+      ] },
+    /* RAMO C */
+    { id:"nao_atuo", type:"single", title:"Legal! E o que te trouxe até aqui?",
+      options:[
+        {ic:"💡",t:"Quero abrir minha própria empresa de energia solar", q:false, s:0, next:"instagram"},
+        {ic:"🏠",t:"Tenho interesse em instalar energia solar em casa",  q:false, s:0, next:"instagram"},
+        {ic:"💼",t:"Estou procurando emprego no setor de energia solar", q:false, s:0, next:"instagram"},
+        {ic:"🔍",t:"Sou de outra área, apenas pesquisando / curiosidade",q:false, s:0, next:"instagram"}
+      ] },
+    { id:"trafego", type:"single", title:"Você já fez tráfego pago?",
+      options:[ {ic:"✅",t:"Sim",s:1,next:"instagram"},{ic:"❌",t:"Não",s:0,next:"instagram"} ] },
+    { id:"instagram", type:"text", title:"Por último: qual o @ do Instagram ou nome da sua empresa?",
+      field:{ placeholder:"@suaempresa" }, submit:true }
+  ]
+};
+
+/* =========================================================================
+   ENGINE
+   ========================================================================= */
+(function(){
+  const host = document.getElementById("stepHost");
+  const fill = document.getElementById("progFill");
+  const stepById = {}; CONFIG.steps.forEach(s=>stepById[s.id]=s);
+  const lead = { qualified:null, score:0, top:false, respostas:{}, pts:{}, papel:"", firedEvents:[] };
+  const stepHistory = [];   // histórico de telas (NÃO confundir com window.history)
+  let currentId = null;
+  let partialSent = false;
+  let retentionArmed = false;
+
+  if(window.fbq && CONFIG.pixelId.indexOf("COLOQUE")<0){ fbq('init',CONFIG.pixelId); fbq('track','PageView'); }
+
+  const params = new URLSearchParams(location.search);
+  const utms = { utm_source:params.get('utm_source')||'',utm_medium:params.get('utm_medium')||'',utm_campaign:params.get('utm_campaign')||'',utm_content:params.get('utm_content')||'' };
+  const eventId = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())+Math.random());
+
+  /* ---- fbc / fbp (#9) — melhora dedupe e precisão da CAPI ---- */
+  function getCookie(n){ const m=document.cookie.match('(^|;)\\s*'+n+'\\s*=\\s*([^;]+)'); return m?decodeURIComponent(m.pop()):''; }
+  let fbc = getCookie('_fbc');
+  const fbclid = params.get('fbclid');
+  if(!fbc && fbclid){ fbc = 'fb.1.'+Date.now()+'.'+fbclid; }
+  const fbp = getCookie('_fbp');
+
+  /* ---- util: substitui {nome} e {desafio} (#10 personalização) ---- */
+  function firstName(){ const n=(lead.nome||'').trim(); if(!n || n.indexOf('@')>-1) return ''; return n.split(/\s+/)[0]||''; }
+  function px(str){
+    if(!str) return str||'';
+    const fn = firstName();
+    // {nome}: se não tiver nome ainda, remove o token e vírgula órfã
+    let out = fn ? str.replace(/\{nome\}/g, fn) : str.replace(/,?\s*\{nome\}/g,'').replace(/\{nome\}/g,'');
+    // {desafio}: usa a resposta (minúscula) ou remove o token
+    const des = (lead.respostas.desafio||'').toLowerCase();
+    out = des ? out.replace(/\{desafio\}/g, des) : out.replace(/\{desafio\}/g,'');
+    return out;
+  }
+
+  /* ---- saudação por horário (#12) ---- */
+  function saudacao(){ const h=new Date().getHours(); return h<12?'Bom dia':h<18?'Boa tarde':'Boa noite'; }
+
+  const setProg = p => fill.style.width = p+'%';
+  const visibleFields = step => step.fields.filter(f => !(f.onlyIfEmail && !CONFIG.pedirEmail));
+
+  // máscara BR: (11) 99999-9999 — corta em 11 dígitos (DDD + 9 dígitos)
+  function maskBRPhone(v){
+    const d=v.replace(/\D/g,'').slice(0,11);
+    if(d.length<=2) return d;
+    if(d.length<=6) return '('+d.slice(0,2)+') '+d.slice(2);
+    if(d.length<=10) return '('+d.slice(0,2)+') '+d.slice(2,6)+'-'+d.slice(6);
+    return '('+d.slice(0,2)+') '+d.slice(2,7)+'-'+d.slice(7);
+  }
+  const phoneDigits = v => (v||'').replace(/\D/g,'');
+  function validPhone(v){ const d=phoneDigits(v); return d.length===10 || (d.length===11 && d[2]==='9'); }
+  function normalizePhone(v){ let d=phoneDigits(v); if(d.length>=10&&d.length<=11) d='55'+d; return d; }
+  function validEmail(v){ return /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(v); }
+  function validCity(v){ return v.replace(/[^a-zà-ú]/gi,'').length>=2; }
+
+  function enhance(action){
+    const first=host.querySelector('.input'); if(first){ try{first.focus({preventScroll:true});}catch(e){} }
+    host.querySelectorAll('input[type=tel]').forEach(el=>{
+      el.setAttribute('maxlength','15');
+      el.addEventListener('input',()=>{ el.value=maskBRPhone(el.value); });
+    });
+    host.querySelectorAll('.input').forEach(el=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); action(); } }); });
+  }
+
+  function renderWelcome(){
+    currentId=null; const w=CONFIG.welcome;
+    host.innerHTML = `<div class="screen active">
+      ${w.image?`<picture>${w.imageWebp?`<source srcset="${w.imageWebp}" type="image/webp">`:''}<img class="w-hero" src="${w.image}" alt="Equipe da 1Nort" width="700" height="466" loading="eager" decoding="async" fetchpriority="high"></picture>`:''}
+      <div class="greet">${saudacao()}, integrador 👋</div>
+      <h1 class="w-title">${w.title}</h1>
+      <p class="w-sub">${w.sub}</p><p class="w-note">${w.note}</p>
+      <button class="btn" id="startBtn">${w.cta}</button>
+      ${w.proof?`<div class="proof"><span class="stars">★★★★★</span><span>${w.proof}</span></div>`:''}</div>`;
+    setProg(0);
+    document.getElementById('startBtn').onclick = ()=>{ stepHistory.length=0; armRetention(); render(CONFIG.steps[0].id); };
+  }
+
+  function render(id){
+    const step = stepById[id]; currentId=id;
+    if(step.type==='contact'){
+      host.innerHTML = `<div class="screen active">
+        <div class="q-step">Etapa ${stepHistory.length+1}</div>
+        <div class="q-title">${px(step.title)}</div>${step.sub?`<div class="q-sub">${px(step.sub)}</div>`:''}
+        ${visibleFields(step).map((f,i)=>`<div class="field"><label class="label">${f.label}</label>
+          <input class="input" data-key="${f.key}" type="${f.type}" inputmode="${f.type==='tel'?'tel':f.type==='email'?'email':'text'}" placeholder="${f.placeholder}" autocomplete="${f.autocomplete}" ${i===0?'autofocus':''}>
+          <div class="err-msg"></div></div>`).join('')}
+        ${step.trust?`<div class="trust"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l8 4v5c0 5-3.5 9-8 11-4.5-2-8-6-8-11V6l8-4z" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linejoin="round"/></svg> Seus dados estão seguros · sem spam</div>`:''}
+        <button class="btn" id="okBtn">Continuar →</button>
+        <button class="back" id="backBtn">← Voltar</button></div>`;
+      updateProgress();
+      const submit = ()=>onContact(step);
+      document.getElementById('okBtn').onclick = submit;
+      document.getElementById('backBtn').onclick = goBack;
+      enhance(submit);
+    }
+    else if(step.type==='single'){
+      host.innerHTML = `<div class="screen active">
+        <div class="q-step">Etapa ${stepHistory.length+1}</div>
+        <div class="q-title">${px(step.title)}</div>${step.sub?`<div class="q-sub">${px(step.sub)}</div>`:''}
+        <div class="opts">${step.options.map((o,i)=>`<button class="opt" data-i="${i}">${o.ic?`<span class="opt-ic">${o.ic}</span>`:''}<span>${o.t}</span><span class="opt-dot"></span></button>`).join('')}</div>
+        ${stepHistory.length?'<button class="back" id="backBtn">← Voltar</button>':''}</div>`;
+      updateProgress();
+      host.querySelectorAll('.opt').forEach(btn=>{
+        btn.onclick = ()=>{
+          host.querySelectorAll('.opt').forEach(b=>b.classList.remove('sel')); btn.classList.add('sel');
+          const opt=step.options[+btn.dataset.i];
+          lead.respostas[step.id]=opt.t;
+          lead.pts[step.id]=opt.s||0;
+          if(step.id==='papel') lead.papel=opt.t;
+          if(typeof opt.q==='boolean') lead.qualified=opt.q;
+          setTimeout(()=>{ stepHistory.push(currentId); render(opt.next); },240);
+        };
+      });
+      const b=document.getElementById('backBtn'); if(b) b.onclick=goBack;
+    }
+    else if(step.type==='text'){
+      const showWpp = step.submit && lead.qualified===true && !!buildWhatsappLink();
+      host.innerHTML = `<div class="screen active">
+        <div class="q-step">Quase lá</div>
+        <div class="q-title">${px(step.title)}</div>
+        <div class="field"><input class="input" id="f_text" type="text" placeholder="${step.field.placeholder}" autocomplete="off" autofocus></div>
+        <button class="btn" id="okBtn">${step.submit?'Quero meu diagnóstico →':'Continuar →'}</button>
+        ${showWpp?`<button class="wpp-alt" id="wppDirect">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.515 5.26l-.999 3.648 3.973-1.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+          Prefiro falar agora no WhatsApp</button>`:''}
+        <button class="back" id="backBtn">← Voltar</button></div>`;
+      updateProgress();
+      const submit = ()=>{
+        const v=document.getElementById('f_text');
+        if(!v.value.trim()){ v.classList.add('err'); v.focus(); return; }
+        lead.respostas[step.id]=v.value.trim();
+        if(step.submit) finish(); else { stepHistory.push(currentId); render(step.next); }
+      };
+      document.getElementById('okBtn').onclick = submit;
+      const wd=document.getElementById('wppDirect');
+      if(wd) wd.onclick = ()=>{ lead.respostas[step.id]=lead.respostas[step.id]||'(foi direto pro WhatsApp)'; finish(true); };
+      document.getElementById('backBtn').onclick = goBack;
+      enhance(submit);
+    }
+  }
+
+  function onContact(step){
+    const inputs=[...host.querySelectorAll('.input')]; let ok=true;
+    inputs.forEach(f=>{
+      const field=f.closest('.field'), msgEl=field.querySelector('.err-msg');
+      f.classList.remove('err'); field.classList.remove('show-err');
+      const val=f.value.trim(), key=f.dataset.key; let msg='';
+      if(!val) msg='Campo obrigatório.';
+      else if(key==='nome' && (val.indexOf('@')>-1 || val.replace(/[^a-zà-ú]/gi,'').length<2)) msg='Digite seu nome (sem e-mail).';
+      else if(key==='telefone' && !validPhone(val)) msg='Digite um WhatsApp válido com DDD (ex: (11) 99999-9999).';
+      else if((key==='email'||f.type==='email') && !validEmail(val)) msg='Digite um e-mail válido.';
+      else if(key==='cidade' && !validCity(val)) msg='Informe sua cidade e estado.';
+      if(msg){ f.classList.add('err'); field.classList.add('show-err'); if(msgEl) msgEl.textContent=msg; if(ok){f.focus();ok=false;} }
+    });
+    if(!ok) return;
+    inputs.forEach(f=>{ lead[f.dataset.key]=f.value.trim(); });
+    setAdvancedMatching();
+    if(step.fireContato) fireEvent(CONFIG.eventoContato);
+    if(step.savePartial) sendWebhook(true);   // #3 — salva nome+telefone na hora
+    stepHistory.push(currentId); render(step.next);
+  }
+
+  function goBack(){ const prev=stepHistory.pop(); if(prev) render(prev); else renderWelcome(); }
+
+  function updateProgress(){
+    const total = lead.papel.indexOf('não atuo')>-1 ? 5 : 7;
+    setProg(Math.min(96, Math.round((stepHistory.length+1)/total*100)));
+  }
+
+  /* ---- SCORE (#6) — soma só os pontos das telas do caminho percorrido ---- */
+  function computeScore(){
+    const path = stepHistory.concat(currentId);
+    let s=0; path.forEach(id=>{ s += (lead.pts[id]||0); });
+    lead.score = s;
+    lead.top   = (lead.qualified===true) && (s >= CONFIG.topThreshold);
+    return s;
+  }
+
+  function setAdvancedMatching(){
+    if(!window.fbq || CONFIG.pixelId.indexOf("COLOQUE")>=0) return;
+    const p=(lead.nome||'').toLowerCase().split(' ').filter(Boolean);
+    const am={ ph:normalizePhone(lead.telefone), fn:p[0]||'', ln:p.slice(1).join(' ')||'' };
+    if(lead.email)  am.em=lead.email.toLowerCase();
+    if(lead.cidade) am.ct=lead.cidade.toLowerCase().replace(/[^a-zà-ú]/g,'');
+    fbq('init', CONFIG.pixelId, am);
+  }
+  function fireEvent(name, custom){
+    // mesmo event_id (base) pro navegador e pra CAPI → Meta deduplica por (event_name + event_id)
+    lead.firedEvents.push({ event_name:name, event_id:eventId, custom_data:custom||{} });
+    if(!window.fbq || CONFIG.pixelId.indexOf("COLOQUE")>=0){ console.log('[pixel mock]',name,custom||{},'| qualified:',lead.qualified,'| score:',lead.score,'| top:',lead.top); return; }
+    fbq('track', name, custom||{}, { eventID:eventId });
+  }
+  function sendWebhook(parcial){
+    const payload = Object.assign({
+      pagina:CONFIG.pagina, event_id:eventId,
+      nome:lead.nome||'', telefone:lead.telefone||'', email:lead.email||'', cidade:lead.cidade||'',
+      papel:lead.papel, qualificado:lead.qualified===true,
+      score:lead.score, top_tier:lead.top===true,
+      tier: parcial ? 'parcial' : (lead.qualified===true ? (lead.top?'top':'qualificado') : 'desqualificado'),
+      parcial: parcial===true,
+      // --- campos pra CAPI (server-side via n8n) ---
+      fbc:fbc||'', fbp:fbp||'',
+      user_agent:navigator.userAgent, event_source_url:location.href,
+      event_time:Math.floor(Date.now()/1000),
+      eventos:lead.firedEvents,   // [{event_name, event_id, custom_data}] → replicar na CAPI com MESMO event_id
+      respostas:lead.respostas, origem:location.href
+    }, utms);
+    if(CONFIG.webhookUrl.indexOf("COLOQUE")>=0){ console.log('[webhook mock'+(parcial?' · PARCIAL':'')+']',payload); return Promise.resolve(); }
+    return fetch(CONFIG.webhookUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),keepalive:true}).catch(e=>console.warn('webhook',e));
+  }
+
+  /* ---- tela "analisando seu perfil" (#5) ---- */
+  function showAnalyzing(done){
+    disarmRetention();
+    host.innerHTML = `<div class="screen active" style="text-align:center">
+      <div class="spinner"></div>
+      <div class="analy-t">Analisando seu perfil${firstName()?', '+firstName():''}…</div>
+      <div class="analy-s" id="analyMsg">${CONFIG.analisando.msgs[0]}</div></div>`;
+    const el=document.getElementById('analyMsg'); let i=0;
+    const each=Math.max(500, Math.floor(CONFIG.analisando.ms/CONFIG.analisando.msgs.length));
+    const t=setInterval(()=>{ i++; if(i>=CONFIG.analisando.msgs.length){clearInterval(t);return;}
+      el.style.opacity=0; setTimeout(()=>{ el.textContent=CONFIG.analisando.msgs[i]; el.style.opacity=1; },200);
+    }, each);
+    setTimeout(()=>{ clearInterval(t); done(); }, CONFIG.analisando.ms);
+  }
+
+  function buildWhatsappLink(){
+    const num=(CONFIG.whatsapp&&CONFIG.whatsapp.number||'').replace(/\D/g,'');
+    if(!num) return '';
+    let msg=px(CONFIG.whatsapp.msg||'');
+    if(lead.respostas.desafio && CONFIG.whatsapp.msgDesafio) msg += px(CONFIG.whatsapp.msgDesafio);
+    msg += ' 🚀';
+    return 'https://wa.me/'+num+'?text='+encodeURIComponent(msg);
+  }
+
+  function showSuccess(){
+    disarmRetention();
+    setProg(100);
+    const qualified = lead.qualified===true;
+    const wpp = qualified ? buildWhatsappLink() : '';   // #2 — só pro qualificado
+    const auto = !!(qualified && wpp && CONFIG.whatsapp.autoRedirect);
+
+    const wppBtn = wpp ? `<a class="wpp-btn" href="${wpp}" target="_self" rel="noopener">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="#072b14"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.515 5.26l-.999 3.648 3.973-1.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+        Falar agora no WhatsApp</a>` : '';
+
+    if(auto){
+      host.innerHTML = `<div class="screen active">
+        <div class="success-ic">✓</div>
+        <div class="success-t">Tudo certo${firstName()?', '+firstName():''}! 🎉</div>
+        <p class="success-s">Estamos te levando pro <b style="color:#fff">WhatsApp</b> pra liberar sua análise gratuita agora mesmo…</p>
+        ${wppBtn}
+        <p class="success-s" style="font-size:13px;margin-top:14px">Não abriu? Toque no botão acima.</p>
+      </div>`;
+      setTimeout(()=>{ location.href = wpp; }, CONFIG.whatsapp.redirectDelayMs||1800);
+    } else {
+      host.innerHTML = `<div class="screen active">
+        <div class="success-ic">✓</div>
+        <div class="success-t">Recebemos seu cadastro${firstName()?', '+firstName():''}!</div>
+        <p class="success-s">Nossa equipe vai analisar seu perfil e entrar em contato pelo WhatsApp que você informou. 🚀</p>
+        ${wppBtn}
+      </div>`;
+    }
+  }
+
+  function finish(quick){
+    computeScore();
+    // dispara pixel ANTES do delay, pra não perder se a pessoa fechar (#7/#8 condicional)
+    if(lead.qualified===true){
+      if(lead.top){
+        fireEvent(CONFIG.eventoTopTier,   {value:CONFIG.valorTop, currency:CONFIG.currency});
+        fireEvent(CONFIG.eventoConversao, {value:CONFIG.valorTop, currency:CONFIG.currency}); // base também, pra manter o público "todos qualificados"
+      } else {
+        fireEvent(CONFIG.eventoConversao, {value:CONFIG.valorBom, currency:CONFIG.currency});
+      }
+    }
+    sendWebhook(false);
+    if(!quick && CONFIG.analisando && CONFIG.analisando.enabled) showAnalyzing(showSuccess);
+    else showSuccess();
+  }
+
+  /* ---- modal de retenção no back (#4) ---- */
+  function onPopState(){
+    window.history.pushState(null,'',location.href); // re-prende
+    if(!CONFIG.retencao || !CONFIG.retencao.enabled){ doLeave(); return; }
+    document.getElementById('retModal').classList.add('show');
+  }
+  function armRetention(){
+    if(retentionArmed) return; retentionArmed=true;
+    window.history.pushState(null,'',location.href);
+    window.addEventListener('popstate', onPopState);
+  }
+  function disarmRetention(){
+    if(!retentionArmed) return; retentionArmed=false;
+    window.removeEventListener('popstate', onPopState);
+  }
+  function doLeave(){
+    disarmRetention();
+    if(CONFIG.backRedirect && CONFIG.backRedirect.url){ location.href=CONFIG.backRedirect.url; }
+    else { window.history.back(); }
+  }
+  (function wireModal(){
+    const m=document.getElementById('retModal');
+    document.getElementById('retTitle').textContent=CONFIG.retencao.title;
+    document.getElementById('retText').textContent=CONFIG.retencao.text;
+    const stay=document.getElementById('retStay'), leave=document.getElementById('retLeave');
+    stay.textContent=CONFIG.retencao.stay; leave.textContent=CONFIG.retencao.leave;
+    stay.onclick=()=>{ m.classList.remove('show'); };
+    leave.onclick=()=>{ m.classList.remove('show'); doLeave(); };
+  })();
+
+  renderWelcome();
+})();
+</script>
+</body>
+</html>
