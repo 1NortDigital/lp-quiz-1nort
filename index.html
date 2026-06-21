@@ -66,6 +66,16 @@ body{font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI'
 .input-wrap{position:relative;display:flex;align-items:center}
 .prefix{position:absolute;left:18px;font-size:17px;font-weight:700;color:rgba(255,255,255,.5);pointer-events:none}
 .input.has-prefix{padding-left:60px}
+/* mantém o tema escuro quando o navegador preenche automático (autofill) */
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus,
+.input:-webkit-autofill:active{
+  -webkit-text-fill-color:#fff !important;
+  -webkit-box-shadow:0 0 0 1000px #161311 inset !important;
+  caret-color:#fff;
+  transition:background-color 9999s ease-in-out 0s;
+}
 .err-msg{display:none;color:#ff6b6b;font-size:12.5px;font-weight:700;margin-top:6px}
 .field.show-err .err-msg{display:block;animation:in .2s ease}
 
