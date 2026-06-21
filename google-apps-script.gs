@@ -4,16 +4,27 @@
 // PUBLICAR: script.google.com (conta dona da planilha) > Novo projeto >
 //   apaga tudo, cola este arquivo, Ctrl+S > Implantar > App da Web
 //   (Executar como: Eu / Acesso: Qualquer pessoa) > autoriza > copia a URL /exec.
+// AO ALTERAR DEPOIS: salvar + Gerenciar implantacoes > editar (lapis) > Nova versao.
 
 var SHEET_ID = '1NABMLnzCLeAOM6TOrmNTpmOHl96cJrogWcSLxkrqU24';
 var ABA = 'Leads';
 
+// chaves internas (ordem dos dados)
 var COLUNAS = [
   'data_hora','tier','qualificado','top_tier','score',
   'nome','telefone','email','cidade',
   'papel','projetos','desafio','foco_vendedor','nao_atuo','trafego','instagram',
   'pagina','utm_source','utm_medium','utm_campaign','utm_content',
   'fbc','fbp','origem','event_id','parcial','respostas_json'
+];
+
+// titulos exibidos na primeira linha
+var TITULOS = [
+  'Data/Hora','Tier','Qualificado','Top Tier','Score',
+  'Nome','Telefone','Email','Cidade',
+  'Papel','Projetos','Desafio','Foco Vendedor','Nao Atua','Trafego','Instagram',
+  'Pagina','UTM Source','UTM Medium','UTM Campaign','UTM Content',
+  'FBC','FBP','Origem','Event ID','Parcial','Respostas (JSON)'
 ];
 
 function doPost(e) {
@@ -24,11 +35,7 @@ function doPost(e) {
     var r = d.respostas || {};
 
     var sheet = pegarAba_();
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow(COLUNAS);
-      sheet.getRange(1, 1, 1, COLUNAS.length).setFontWeight('bold');
-      sheet.setFrozenRows(1);
-    }
+    garantirCabecalho_(sheet);
 
     var linha = {
       data_hora:    new Date(),
@@ -85,6 +92,20 @@ function doPost(e) {
 
 function doGet() {
   return resposta_({ ok: true, msg: '1Nort LP-Quiz endpoint no ar' });
+}
+
+// garante que a linha 1 tenha os titulos certos (autocorrige)
+function garantirCabecalho_(sheet) {
+  var faixa = sheet.getRange(1, 1, 1, TITULOS.length);
+  var atual = faixa.getValues()[0];
+  var precisa = false;
+  for (var i = 0; i < TITULOS.length; i++) {
+    if (atual[i] !== TITULOS[i]) { precisa = true; break; }
+  }
+  if (precisa) {
+    faixa.setValues([TITULOS]).setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  }
 }
 
 function pegarAba_() {
