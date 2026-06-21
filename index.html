@@ -63,6 +63,9 @@ body{font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI'
 .input::placeholder{color:rgba(255,255,255,.28)}
 .input:focus{border-color:var(--yellow);background:rgba(253,216,53,.05)}
 .input.err{border-color:#ef4444}
+.input-wrap{position:relative;display:flex;align-items:center}
+.prefix{position:absolute;left:18px;font-size:17px;font-weight:700;color:rgba(255,255,255,.5);pointer-events:none}
+.input.has-prefix{padding-left:60px}
 .err-msg{display:none;color:#ff6b6b;font-size:12.5px;font-weight:700;margin-top:6px}
 .field.show-err .err-msg{display:block;animation:in .2s ease}
 
@@ -198,7 +201,7 @@ const CONFIG = {
     { id:"contato", type:"contact", fireContato:true, savePartial:true, title:"Vamos começar 👋", sub:"Pra onde enviamos sua análise gratuita?",
       fields:[
         { key:"nome",     label:"Seu nome", type:"text", placeholder:"João Silva",          autocomplete:"name" },
-        { key:"telefone", label:"WhatsApp", type:"tel",  placeholder:"(11) 99999-9999",     autocomplete:"tel"  }
+        { key:"telefone", label:"WhatsApp", type:"tel",  placeholder:"(11) 99999-9999",     autocomplete:"tel", prefix:"+55"  }
       ], trust:true, next:"dados" },
     /* Tela 2 — e-mail + cidade (entram no Advanced Matching) */
     { id:"dados", type:"contact", title:"Quase lá, {nome}!", sub:"Só mais dois dados pra personalizar sua análise.",
@@ -332,9 +335,11 @@ const CONFIG = {
       host.innerHTML = `<div class="screen active">
         <div class="q-step">Etapa ${stepHistory.length+1}</div>
         <div class="q-title">${px(step.title)}</div>${step.sub?`<div class="q-sub">${px(step.sub)}</div>`:''}
-        ${visibleFields(step).map((f,i)=>`<div class="field"><label class="label">${f.label}</label>
-          <input class="input" data-key="${f.key}" name="${f.autocomplete}" id="f_${f.key}" type="${f.type}" inputmode="${f.type==='tel'?'tel':f.type==='email'?'email':'text'}" placeholder="${f.placeholder}" autocomplete="${f.autocomplete}" ${i===0?'autofocus':''}>
-          <div class="err-msg"></div></div>`).join('')}
+        ${visibleFields(step).map((f,i)=>{
+          const inp = `<input class="input${f.prefix?' has-prefix':''}" data-key="${f.key}" name="${f.autocomplete}" id="f_${f.key}" type="${f.type}" inputmode="${f.type==='tel'?'tel':f.type==='email'?'email':'text'}" placeholder="${f.placeholder}" autocomplete="${f.autocomplete}" ${i===0?'autofocus':''}>`;
+          const campo = f.prefix ? `<div class="input-wrap"><span class="prefix">${f.prefix}</span>${inp}</div>` : inp;
+          return `<div class="field"><label class="label">${f.label}</label>${campo}<div class="err-msg"></div></div>`;
+        }).join('')}
         ${step.trust?`<div class="trust"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l8 4v5c0 5-3.5 9-8 11-4.5-2-8-6-8-11V6l8-4z" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linejoin="round"/></svg> Seus dados estão seguros · sem spam</div>`:''}
         <button class="btn" id="okBtn">Continuar →</button>
         <button class="back" id="backBtn">← Voltar</button></div>`;
