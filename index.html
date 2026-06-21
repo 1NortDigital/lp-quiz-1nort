@@ -79,6 +79,8 @@ body{font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI'
 .err-msg{display:none;color:#ff6b6b;font-size:12.5px;font-weight:700;margin-top:6px}
 .field.show-err .err-msg{display:block;animation:in .2s ease}
 
+.contacts-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-bottom:14px;padding:13px;border-radius:12px;border:1px dashed rgba(255,255,255,.22);background:rgba(255,255,255,.03);color:var(--txt-dim);font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;transition:all .16s}
+.contacts-btn:hover{border-color:var(--yellow);color:#fff;background:rgba(253,216,53,.06)}
 .trust{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--txt-faint);margin-top:2px}
 .trust svg{flex-shrink:0}
 
@@ -208,7 +210,7 @@ const CONFIG = {
 
   steps: [
     /* Tela 1 — contato essencial */
-    { id:"contato", type:"contact", fireContato:true, savePartial:true, title:"Vamos começar 👋", sub:"Pra onde enviamos sua análise gratuita?",
+    { id:"contato", type:"contact", fireContato:true, savePartial:true, contactPicker:true, title:"Vamos começar 👋", sub:"Pra onde enviamos sua análise gratuita?",
       fields:[
         { key:"nome",     label:"Seu nome", type:"text", placeholder:"João Silva",          autocomplete:"name" },
         { key:"telefone", label:"WhatsApp", type:"tel",  placeholder:"(11) 99999-9999",     autocomplete:"tel", prefix:"+55"  }
@@ -300,6 +302,20 @@ const CONFIG = {
 
   const setProg = p => fill.style.width = p+'%';
   const visibleFields = step => step.fields.filter(f => !(f.onlyIfEmail && !CONFIG.pedirEmail));
+  const supportsContacts = ('contacts' in navigator) && ('ContactsManager' in window);
+
+  // Contact Picker API (Android Chrome) — botão "preencher com meus contatos"
+  async function pickContacts(){
+    try{
+      const sel = await navigator.contacts.select(['name','tel','email'], {multiple:false});
+      if(!sel || !sel.length) return;
+      const c = sel[0];
+      if(c.name  && c.name[0])  lead.nome     = c.name[0];
+      if(c.tel   && c.tel[0])   lead.telefone = maskBRPhone(c.tel[0]);
+      if(c.email && c.email[0]) lead.email    = c.email[0];
+      host.querySelectorAll('.input').forEach(el=>{ const k=el.dataset.key; if(lead[k]) el.value=lead[k]; });
+    }catch(e){ /* cancelado ou sem suporte */ }
+  }
 
   // máscara BR: (11) 99999-9999 — corta em 11 dígitos (DDD + 9 dígitos)
   function maskBRPhone(v){
@@ -345,6 +361,7 @@ const CONFIG = {
       host.innerHTML = `<div class="screen active">
         <div class="q-step">Etapa ${stepHistory.length+1}</div>
         <div class="q-title">${px(step.title)}</div>${step.sub?`<div class="q-sub">${px(step.sub)}</div>`:''}
+        ${(step.contactPicker && supportsContacts)?`<button type="button" class="contacts-btn" id="contactsBtn">📇 Preencher com meus contatos</button>`:''}
         ${visibleFields(step).map((f,i)=>{
           const inp = `<input class="input${f.prefix?' has-prefix':''}" data-key="${f.key}" name="${f.autocomplete}" id="f_${f.key}" type="${f.type}" inputmode="${f.type==='tel'?'tel':f.type==='email'?'email':'text'}" placeholder="${f.placeholder}" autocomplete="${f.autocomplete}" ${i===0?'autofocus':''}>`;
           const campo = f.prefix ? `<div class="input-wrap"><span class="prefix">${f.prefix}</span>${inp}</div>` : inp;
@@ -354,9 +371,11 @@ const CONFIG = {
         <button class="btn" id="okBtn">Continuar →</button>
         <button class="back" id="backBtn">← Voltar</button></div>`;
       updateProgress();
+      host.querySelectorAll('.input').forEach(el=>{ const k=el.dataset.key; if(lead[k]) el.value=lead[k]; }); // pré-preenche (volta/contatos)
       const submit = ()=>onContact(step);
       document.getElementById('okBtn').onclick = submit;
       document.getElementById('backBtn').onclick = goBack;
+      const cb=document.getElementById('contactsBtn'); if(cb) cb.onclick=pickContacts;
       enhance(submit);
     }
     else if(step.type==='single'){
