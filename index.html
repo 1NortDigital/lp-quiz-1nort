@@ -137,6 +137,7 @@ body{font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI'
 const CONFIG = {
   pixelId:    "COLOQUE_O_PIXEL_ID_DO_CLIENTE",
   webhookUrl: "COLOQUE_O_WEBHOOK_PADRAO_1NORT",
+  sheetsUrl:  "https://script.google.com/macros/s/AKfycbzp9JHG1yBW6QwncMTg9X5OzzpZ2QbeFQMx_wKIzsy2E1_bPGmRPEY3XPKDDUiPflS95w/exec",   // Google Sheets (Web App) — grava cada lead
   pagina:     "lp-quiz-integrador-solar",
 
   // EVENTOS (#8 — níveis separados pra criar públicos/campanhas distintas)
@@ -438,6 +439,18 @@ const CONFIG = {
     if(!window.fbq || CONFIG.pixelId.indexOf("COLOQUE")>=0){ console.log('[pixel mock]',name,custom||{},'| qualified:',lead.qualified,'| score:',lead.score,'| top:',lead.top); return; }
     fbq('track', name, custom||{}, { eventID:eventId });
   }
+  // Envio que SOBREVIVE ao redirect (sendBeacon é entregue mesmo com a página saindo).
+  // Corrige o bug de lead perdido no Sheets quando redireciona pro WhatsApp (mobile/iOS).
+  function postBeacon(url, data){
+    var body = JSON.stringify(data);
+    try{
+      if(navigator.sendBeacon){
+        var blob = new Blob([body], {type:'text/plain;charset=UTF-8'});
+        if(navigator.sendBeacon(url, blob)) return;   // sucesso garantido pelo browser
+      }
+    }catch(e){}
+    try{ fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:body,keepalive:true}); }catch(e){}
+  }
   function sendWebhook(parcial){
     const payload = Object.assign({
       pagina:CONFIG.pagina, event_id:eventId,
@@ -453,6 +466,13 @@ const CONFIG = {
       eventos:lead.firedEvents,   // [{event_name, event_id, custom_data}] → replicar na CAPI com MESMO event_id
       respostas:lead.respostas, origem:location.href
     }, utms);
+
+    // 1) Google Sheets (Apps Script Web App) — via sendBeacon, sobrevive ao redirect pro WhatsApp
+    if(CONFIG.sheetsUrl && CONFIG.sheetsUrl.indexOf("COLOQUE")<0){
+      postBeacon(CONFIG.sheetsUrl, payload);
+    } else { console.log('[sheets mock'+(parcial?' · PARCIAL':'')+']',payload); }
+
+    // 2) Webhook padrão (n8n / endpoint do Matheus)
     if(CONFIG.webhookUrl.indexOf("COLOQUE")>=0){ console.log('[webhook mock'+(parcial?' · PARCIAL':'')+']',payload); return Promise.resolve(); }
     return fetch(CONFIG.webhookUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),keepalive:true}).catch(e=>console.warn('webhook',e));
   }
