@@ -290,7 +290,9 @@ const CONFIG = {
 
   // máscara BR: (11) 99999-9999 — corta em 11 dígitos (DDD + 9 dígitos)
   function maskBRPhone(v){
-    const d=v.replace(/\D/g,'').slice(0,11);
+    let raw=v.replace(/\D/g,'');
+    if(raw.length>11 && raw.slice(0,2)==='55') raw=raw.slice(2);  // autofill às vezes traz o +55 → remove
+    const d=raw.slice(0,11);
     if(d.length<=2) return d;
     if(d.length<=6) return '('+d.slice(0,2)+') '+d.slice(2);
     if(d.length<=10) return '('+d.slice(0,2)+') '+d.slice(2,6)+'-'+d.slice(6);
@@ -331,7 +333,7 @@ const CONFIG = {
         <div class="q-step">Etapa ${stepHistory.length+1}</div>
         <div class="q-title">${px(step.title)}</div>${step.sub?`<div class="q-sub">${px(step.sub)}</div>`:''}
         ${visibleFields(step).map((f,i)=>`<div class="field"><label class="label">${f.label}</label>
-          <input class="input" data-key="${f.key}" type="${f.type}" inputmode="${f.type==='tel'?'tel':f.type==='email'?'email':'text'}" placeholder="${f.placeholder}" autocomplete="${f.autocomplete}" ${i===0?'autofocus':''}>
+          <input class="input" data-key="${f.key}" name="${f.autocomplete}" id="f_${f.key}" type="${f.type}" inputmode="${f.type==='tel'?'tel':f.type==='email'?'email':'text'}" placeholder="${f.placeholder}" autocomplete="${f.autocomplete}" ${i===0?'autofocus':''}>
           <div class="err-msg"></div></div>`).join('')}
         ${step.trust?`<div class="trust"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l8 4v5c0 5-3.5 9-8 11-4.5-2-8-6-8-11V6l8-4z" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linejoin="round"/></svg> Seus dados estão seguros · sem spam</div>`:''}
         <button class="btn" id="okBtn">Continuar →</button>
