@@ -32,14 +32,14 @@ var SCHEMAS = {
     colunas: [
       'data_hora','tier','qualificado','top_tier','score',
       'nome','telefone','email','cidade',
-      'advogados','tempo','faturamento','atendimento','mentalidade','investimento','instagram',
+      'advogados','faturamento','investimento','instagram',
       'pagina','utm_source','utm_medium','utm_campaign','utm_content',
       'fbc','fbp','origem','event_id','parcial','respostas_json'
     ],
     titulos: [
       'Data/Hora','Tier','Qualificado','Top Tier','Score',
       'Nome','Telefone','Email','Cidade',
-      'Advogados','Tempo','Faturamento','Quem atende','Mentalidade','Investimento','Instagram',
+      'Advogados','Faturamento','Investimento','Instagram',
       'Pagina','UTM Source','UTM Medium','UTM Campaign','UTM Content',
       'FBC','FBP','Origem','Event ID','Parcial','Respostas (JSON)'
     ]
