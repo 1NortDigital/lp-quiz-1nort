@@ -362,11 +362,11 @@ const CONFIG = {
         <div class="q-step">Etapa ${stepHistory.length+1}</div>
         <div class="q-title">${px(step.title)}</div>${step.sub?`<div class="q-sub">${px(step.sub)}</div>`:''}
         ${(step.contactPicker && supportsContacts)?`<button type="button" class="contacts-btn" id="contactsBtn">📇 Preencher com meus contatos</button>`:''}
-        ${visibleFields(step).map((f,i)=>{
+        <form autocomplete="on" onsubmit="return false">${visibleFields(step).map((f,i)=>{
           const inp = `<input class="input${f.prefix?' has-prefix':''}" data-key="${f.key}" name="${f.autocomplete}" id="f_${f.key}" type="${f.type}" inputmode="${f.type==='tel'?'tel':f.type==='email'?'email':'text'}" placeholder="${f.placeholder}" autocomplete="${f.autocomplete}" ${i===0?'autofocus':''}>`;
           const campo = f.prefix ? `<div class="input-wrap"><span class="prefix">${f.prefix}</span>${inp}</div>` : inp;
           return `<div class="field"><label class="label">${f.label}</label>${campo}<div class="err-msg"></div></div>`;
-        }).join('')}
+        }).join('')}</form>
         ${step.trust?`<div class="trust"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l8 4v5c0 5-3.5 9-8 11-4.5-2-8-6-8-11V6l8-4z" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linejoin="round"/></svg> Seus dados estão seguros · sem spam</div>`:''}
         <button class="btn" id="okBtn">Continuar →</button>
         <button class="back" id="backBtn">← Voltar</button></div>`;
