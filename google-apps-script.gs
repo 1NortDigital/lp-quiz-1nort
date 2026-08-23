@@ -1,10 +1,15 @@
-// 1Nort - LP-Quiz para Google Sheets (ROTEADOR multi-segmento)
+// LP-Quiz para Google Sheets (ROTEADOR multi-segmento)
 // Recebe o POST das LPs e grava na aba certa conforme o campo "pagina".
-// Mesma planilha, mesmo script, mesma URL /exec pras duas LPs (Solar e Advoga).
+// Mesma planilha, mesmo script, mesma URL /exec pras LPs (Solar, Advoga, Móveis e Food).
 //
 // PUBLICAR/ATUALIZAR: script.google.com (conta dona da planilha) > cola este arquivo,
 //   confere o SHEET_ID, Ctrl+S > Implantar > Gerenciar implantacoes > editar (lapis)
 //   > Nova versao > Implantar. A URL /exec continua a mesma.
+//
+// ATENCAO: a planilha tem DUAS implantacoes /exec ativas, em versoes diferentes:
+//   AKfycbzYM6CdDzk5...  -> lp-quiz-1nort (Solar) e lp-quiz-advoga
+//   AKfycbydV26wxGU4...  -> lp-quiz-food e lp-quiz-heleva
+//   Repita o 'Nova versao' nas DUAS, senao metade das LPs fica na versao antiga.
 
 var SHEET_ID = '1NABMLnzCLeAOM6TOrmNTpmOHl96cJrogWcSLxkrqU24';
 
@@ -17,14 +22,14 @@ var SCHEMAS = {
       'nome','telefone','email','cidade',
       'papel','projetos','desafio','foco_vendedor','nao_atuo','trafego','instagram',
       'pagina','utm_source','utm_medium','utm_campaign','utm_content',
-      'fbc','fbp','origem','event_id','parcial','respostas_json'
+      'fbc','fbp','origem','event_id','parcial','respostas_json','ref'
     ],
     titulos: [
       'Data/Hora','Tier','Qualificado','Top Tier','Score',
       'Nome','Telefone','Email','Cidade',
       'Papel','Projetos','Desafio','Foco Vendedor','Nao Atua','Trafego','Instagram',
       'Pagina','UTM Source','UTM Medium','UTM Campaign','UTM Content',
-      'FBC','FBP','Origem','Event ID','Parcial','Respostas (JSON)'
+      'FBC','FBP','Origem','Event ID','Parcial','Respostas (JSON)','Ref'
     ]
   },
   advoga: {
@@ -34,20 +39,61 @@ var SCHEMAS = {
       'nome','telefone','email','cidade',
       'advogados','faturamento','investimento','instagram',
       'pagina','utm_source','utm_medium','utm_campaign','utm_content',
-      'fbc','fbp','origem','event_id','parcial','respostas_json'
+      'fbc','fbp','origem','event_id','parcial',
+      'desafio','contratos',
+      'respostas_json','ref'
     ],
     titulos: [
       'Data/Hora','Tier','Qualificado','Top Tier','Score',
       'Nome','Telefone','Email','Cidade',
       'Advogados','Faturamento','Investimento','Instagram',
       'Pagina','UTM Source','UTM Medium','UTM Campaign','UTM Content',
-      'FBC','FBP','Origem','Event ID','Parcial','Respostas (JSON)'
+      'FBC','FBP','Origem','Event ID','Parcial',
+      'Desafio','Contratos',
+      'Respostas (JSON)','Ref'
+    ]
+  },
+  food: {
+    aba: 'Food',
+    colunas: [
+      'data_hora','tier','qualificado','top_tier','score',
+      'nome','telefone','email','cidade',
+      'desafio','operacao','faturamento',
+      'pagina','utm_source','utm_medium','utm_campaign','utm_content',
+      'fbc','fbp','origem','event_id','parcial','respostas_json','ref'
+    ],
+    titulos: [
+      'Data/Hora','Tier','Qualificado','Top Tier','Score',
+      'Nome','Telefone','Email','Cidade',
+      'Desafio','Operacao','Faturamento',
+      'Pagina','UTM Source','UTM Medium','UTM Campaign','UTM Content',
+      'FBC','FBP','Origem','Event ID','Parcial','Respostas (JSON)','Ref'
+    ]
+  },
+  moveis: {
+    aba: 'Moveis',
+    colunas: [
+      'data_hora','tier','qualificado','top_tier','score',
+      'nome','telefone','email','cidade',
+      'desafio','segmento','vendedores','faturamento','investimento',
+      'pagina','utm_source','utm_medium','utm_campaign','utm_content',
+      'fbc','fbp','origem','event_id','parcial','respostas_json','ref'
+    ],
+    titulos: [
+      'Data/Hora','Tier','Qualificado','Top Tier','Score',
+      'Nome','Telefone','Email','Cidade',
+      'Desafio','Segmento','Vendedores','Faturamento','Investimento',
+      'Pagina','UTM Source','UTM Medium','UTM Campaign','UTM Content',
+      'FBC','FBP','Origem','Event ID','Parcial','Respostas (JSON)','Ref'
     ]
   }
 };
 
 function schemaFor_(pagina) {
-  if ((pagina || '').indexOf('advoga') > -1) return SCHEMAS.advoga;
+  var p = pagina || '';
+  if (p.indexOf('advoga') > -1) return SCHEMAS.advoga;
+  if (p.indexOf('food') > -1 || p.indexOf('acai') > -1) return SCHEMAS.food;
+  if (p.indexOf('heleva') > -1 || p.indexOf('moveis') > -1) return SCHEMAS.moveis;
   return SCHEMAS.solar;
 }
 
@@ -70,6 +116,12 @@ function doPost(e) {
     var d = JSON.parse(e.postData.contents);
     var r = d.respostas || {};
     var schema = schemaFor_(d.pagina);
+
+    // Só grava lead qualificado. Parciais e desqualificados são ignorados
+    // pra não poluir a planilha (comercial só trabalha lead que fechou o quiz).
+    if (d.qualificado !== true) {
+      return resposta_({ ok: true, ignorado: 'nao_qualificado' });
+    }
 
     var sheet = pegarAba_(schema.aba);
     garantirCabecalho_(sheet, schema.titulos);
@@ -97,8 +149,16 @@ function doPost(e) {
   }
 }
 
-function doGet() {
-  return resposta_({ ok: true, msg: '1Nort LP-Quiz endpoint no ar (Solar + Advoga)' });
+function doGet(e) {
+  // ?abas=1 -> diagnostico: lista as abas e quantas linhas cada uma tem
+  if (e && e.parameter && e.parameter.abas) {
+    var ss = SpreadsheetApp.openById(SHEET_ID);
+    var info = ss.getSheets().map(function (s) {
+      return { aba: s.getName(), linhas: Math.max(0, s.getLastRow() - 1) };
+    });
+    return resposta_({ ok: true, abas: info });
+  }
+  return resposta_({ ok: true, msg: 'LP-Quiz endpoint no ar (Solar + Advoga + Moveis + Food)' });
 }
 
 function garantirCabecalho_(sheet, titulos) {

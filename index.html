@@ -276,6 +276,33 @@ const CONFIG = {
   const params = new URLSearchParams(location.search);
   const utms = { utm_source:params.get('utm_source')||'',utm_medium:params.get('utm_medium')||'',utm_campaign:params.get('utm_campaign')||'',utm_content:params.get('utm_content')||'' };
   const eventId = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())+Math.random());
+  /* ---- Ref: código curto de rastreio (planilha <-> WhatsApp <-> CRM) ----
+     Gerado no LOAD e guardado em sessionStorage: recarregar no meio do quiz NÃO troca o código;
+     abrir noutra aba/dia gera outro. Alfabeto sem 0/O/1/I — o código é lido por humano no WhatsApp.
+     Tudo defensivo: se falhar, refCode fica vazio e o fluxo (planilha + redirect) segue igual. */
+  const REF_ALFABETO = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';   // 32 chars → 256 % 32 == 0, sem viés no módulo
+  const REF_RE = /^R[2-9A-HJ-NP-Z]{5}$/;
+  function novoRef(){
+    let bytes = null;
+    try{ if(window.crypto && crypto.getRandomValues) bytes = crypto.getRandomValues(new Uint8Array(5)); }catch(e){}
+    let out = 'R';
+    for(let i=0;i<5;i++){
+      const n = bytes ? bytes[i] : Math.floor(Math.random()*256);
+      out += REF_ALFABETO[n % REF_ALFABETO.length];
+    }
+    return out;
+  }
+  const refCode = (function(){
+    try{
+      const guardado = sessionStorage.getItem('n1_ref');
+      if(guardado && REF_RE.test(guardado)) return guardado;
+      const novo = novoRef();
+      try{ sessionStorage.setItem('n1_ref', novo); }catch(e){}   // aba anônima/storage bloqueado: segue só em memória
+      return novo;
+    }catch(e){
+      try{ return novoRef(); }catch(e2){ return ''; }
+    }
+  })();
 
   /* ---- fbc / fbp (#9) — melhora dedupe e precisão da CAPI ---- */
   function getCookie(n){ const m=document.cookie.match('(^|;)\\s*'+n+'\\s*=\\s*([^;]+)'); return m?decodeURIComponent(m.pop()):''; }
@@ -489,7 +516,7 @@ const CONFIG = {
   }
   function sendWebhook(parcial){
     const payload = Object.assign({
-      pagina:CONFIG.pagina, event_id:eventId,
+      pagina:CONFIG.pagina, event_id:eventId, ref:refCode,
       nome:lead.nome||'', telefone:lead.telefone||'', email:lead.email||'', cidade:lead.cidade||'',
       papel:lead.papel, qualificado:lead.qualified===true,
       score:lead.score, top_tier:lead.top===true,
@@ -534,6 +561,8 @@ const CONFIG = {
     let msg=px(CONFIG.whatsapp.msg||'');
     if(lead.respostas.desafio && CONFIG.whatsapp.msgDesafio) msg += px(CONFIG.whatsapp.msgDesafio);
     msg += ' 🚀';
+    // código de rastreio no FIM da mensagem — é por ele que o n8n casa a conversa com a linha da planilha
+    try{ if(refCode) msg += ' ['+refCode+']'; }catch(e){}
     return 'https://wa.me/'+num+'?text='+encodeURIComponent(msg);
   }
 
